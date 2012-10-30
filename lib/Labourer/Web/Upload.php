@@ -41,8 +41,14 @@ class Upload
                   );
 
 
+  public static function setup(array $test = array())
+  {
+    foreach ($test as $key => $val) {
+      \Labourer\Config::set("upload_$key", $val);
+    }
+  }
 
-  public static function validate($skip = FALSE)
+  public static function validate(array $test, $skip = FALSE)
   {
     $out = FALSE;
 
@@ -60,7 +66,7 @@ class Upload
       return static::set_error('upload_err_path');
     }
 
-    $set = static::fix_files(\Postman\Helpers::fetch($_FILES, \Labourer\Config::get('upload_name'), array()));
+    $set = static::fix_files($test);
 
     if (empty($set)) {
       return static::set_error('upload_err_no_file');
