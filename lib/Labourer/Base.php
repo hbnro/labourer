@@ -8,14 +8,14 @@ class Base
   public static function initialize()
   {
     // method override
-    if ($_method = \Postman\Helpers::fetch($_POST, '_method')) {
+    if ($_method = (isset($_POST['_method']) ? $_POST['_method'] : FALSE)) {
       $_SERVER['REQUEST_METHOD'] = strtoupper($_method);
       unset($_POST['_method']);
     }
 
 
     // CSRF override
-    if ($_token = \Postman\Helpers::fetch($_POST, '_token')) {
+    if ($_token = (isset($_POST['_token']) ? $_POST['_token'] : FALSE)) {
       $_SERVER['HTTP_X_CSRF_TOKEN'] = $_POST['_token'];
       unset($_POST['_token']);
     }

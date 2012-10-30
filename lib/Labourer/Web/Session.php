@@ -49,7 +49,7 @@ class Session
   public static function is_safe()
   {
     $check = \Labourer\Config::get('csrf_check');
-    $token = \Postman\Helpers::fetch($_SERVER, 'HTTP_X_CSRF_TOKEN');
+    $token = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? $_SERVER['HTTP_X_CSRF_TOKEN'] : NULL;
 
     @list($old_time, $old_token) = explode(' ', $check);
     @list($new_time, $new_token) = explode(' ', $token);
@@ -101,7 +101,7 @@ class Session
       session_destroy();//FIX
       $test = session_get_cookie_params();
       setcookie(session_name(), 0, 1, $test['path']);
-    } elseif ( ! is_array($test = \Postman\Helpers::fetch($_SESSION, $hash))) {
+    } elseif ( ! is_array($test = (isset($_SESSION[$hash]) ? $_SESSION[$hash] : NULL))) {
       return FALSE;
     } elseif (array_key_exists('value', $test)) {
       return $test['value'];
