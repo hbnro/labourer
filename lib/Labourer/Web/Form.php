@@ -141,7 +141,7 @@ class Form
 
     if ($post) {
       $params['method'] = 'post';
-      $tmp []= static::csrf();
+      $tmp []= static::csrf_token();
     }
 
     if ($tmp = join("\n", $tmp)) {
@@ -469,7 +469,8 @@ class Form
     return \Labourer\Web\Html::tag('label', $args, $text);
   }
 
-  public static function csrf()
+
+  private static function csrf_token()
   {
     return \Labourer\Web\Html::tag('input', array(
       'type' => 'hidden',
@@ -477,7 +478,6 @@ class Form
       'value' => \Labourer\Web\Session::token(),
     ));
   }
-
 
   private static function instance()
   {
