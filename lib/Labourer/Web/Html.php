@@ -90,7 +90,7 @@ class Html
           }
         }
       } elseif ( ! is_numeric($key)) {
-        $out []= $key . '="' . static::ents((string) $value, TRUE) . '"';
+        $out []= $key . '="' . htmlspecialchars((string) $value) . '"';
       }
     }
 
