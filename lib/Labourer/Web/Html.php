@@ -6,10 +6,10 @@ class Html
 {
 
   private static $ents_repl = array(
-                    '/(&#?[0-9a-z]{2,})([\x00-\x20])*;?/i' => '\\1;\\2',
-                    '/&#x([0-9a-f]+);?/ei' => 'chr(hexdec("\\1"));',
-                    '/(&#x?)([0-9A-F]+);?/i' => '\\1\\2;',
-                    '/&#(\d+);?/e' => 'chr("\\1");',
+                    '/(&#?[0-9a-z]{2,})([\x00-\x20])*;/i' => '\\1;\\2',
+                    '/&#x([0-9a-f]+);/ei' => 'chr(hexdec("\\1"));',
+                    '/(&#x?)([0-9A-F]+);/i' => '\\1\\2;',
+                    '/&#(\d+);/e' => 'chr("\\1");',
                   );
 
   private static $unents_repl = array(
@@ -85,7 +85,7 @@ class Html
           $out []= 'style="' . join(';', $props) . '"';
         } else {
           foreach ($value as $index => $test) {
-            $val = is_scalar($test) ? $test : htmlentities(json_encode($test));
+            $val = is_scalar($test) ? $test : htmlspecialchars(json_encode($test));
             $out []= $key . '-' . $index . '="' . $val . '"';
           }
         }

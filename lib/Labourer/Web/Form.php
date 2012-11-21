@@ -166,7 +166,7 @@ class Form
 
 
     foreach ($args as $one) {
-      if (\Labourer\Helpers::is_assoc($one)) {
+      if (is_array($one) && is_string(key($one))) {
         $one = array_merge(array(
           'type'    => '',
           'name'    => '',
