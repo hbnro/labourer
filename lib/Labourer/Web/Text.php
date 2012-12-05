@@ -11,16 +11,6 @@ class Text
 
   private static $high_chars = '$-_.+!*\'(),\d\pL';
 
-  private static $under_repl = array(
-                    '/(^|\W)([A-Z])/e' => '"\\1_".strtolower("\\2");',
-                    '/[A-Z](?=\w)/' => '_\\0',
-                  );
-
-  private static $camel_repl = array(
-                    '/[^a-z0-9]|\s+/i' => ' ',
-                    '/\s([a-z])/ie' => '$glue.ucfirst("\\1");',
-                  );
-
   private static $plain_repl = array();
 
 
@@ -264,30 +254,6 @@ class Text
       }
     }
     return FALSE;
-  }
-
-  public static function underscore($text, $ucwords = FALSE, $strict = FALSE)
-  {
-    if ($ucwords) {
-      $text = ucwords($text);
-    }
-
-    $text = preg_replace(array_keys(static::$under_repl), static::$under_repl, $text);
-    $text = trim(strtr($text, ' ', '_'), '_');
-    $text = strtolower($text);
-
-    return $text;
-  }
-
-  public static function camelcase($text, $ucfirst = FALSE, $glue = '')
-  {
-    $text = preg_replace(array_keys(static::$camel_repl), static::$camel_repl, static::underscore($text));
-
-    if ($ucfirst) {
-      $text = ucfirst($text);
-    }
-
-    return $text;
   }
 
   public static function salt($length = 8)
