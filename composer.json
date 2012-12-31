@@ -6,7 +6,7 @@
   }],
   "require": {
     "php": ">=5.3",
-    "habanero/postman": "v0.0.9",
+    "habanero/postman": "v0.1.0",
     "oyatel/amazon-s3-php-class": "dev-master"
   },
   "autoload": {
