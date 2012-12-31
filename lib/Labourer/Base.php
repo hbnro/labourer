@@ -11,7 +11,9 @@ class Base
 
     if ((strpos($test, 'CLI') === FALSE) OR ($test === 'CLI-SERVER')) {
       // method override
-      if ($_method = (isset($_POST['_method']) ? $_POST['_method'] : FALSE)) {
+      if (isset($_SERVER['X_HTTP_METHOD_OVERRIDE'])) {
+        $_SERVER['REQUEST_METHOD'] = strtoupper($_SERVER['X_HTTP_METHOD_OVERRIDE']);
+      } elseif ($_method = (isset($_POST['_method']) ? $_POST['_method'] : FALSE)) {
         $_SERVER['REQUEST_METHOD'] = strtoupper($_method);
         unset($_POST['_method']);
       }
