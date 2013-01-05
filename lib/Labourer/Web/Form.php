@@ -241,16 +241,15 @@ class Form
     switch ($params['type']) {
       case 'radio';
       case 'checkbox';
-        $test = array();
         $uncheck = TRUE;
+        $default = static::value($params['name'], static::value($key));
 
-        if($test = isset($params['default'])) {
-          $test = (array) $params['default'];
+        if (isset($params['default'])) {
+          $default = (array) $params['default'];
           unset($params['default']);
         }
 
-        $received = static::value($params['name'], static::value($key));
-        $params['checked'] = in_array($params['value'], $received ?: $test);
+        $params['checked'] = in_array($params['value'], (array) $default);
       break;
       default;
         $params['value'] = static::value($key, $params['value']);
