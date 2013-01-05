@@ -229,22 +229,34 @@ class Form
 
 
     $params = array_merge(array(
-      'name'  => FALSE,
-      'type'  => FALSE,
-      'value' => '',
+      'name'    => FALSE,
+      'type'    => FALSE,
+      'value'   => '',
     ), $params);
 
-    $params = static::ujs($params);
-    $key    = static::index($params['name'], TRUE);
+    $uncheck = '';
+    $params  = static::ujs($params);
+    $key     = static::index($params['name'], TRUE);
 
+    switch ($params['type']) {
+      case 'radio';
+      case 'checkbox';
+        $test = array();
+        $uncheck = TRUE;
 
-    if ( ! preg_match('/^(?:radio|checkbox)$/', $params['type'])) {
-      $params['value'] = static::value($key, $params['value']);
-    } else {
-      $default = static::value($params['name'], static::value($key));
+        if($test = isset($params['default'])) {
+          $test = (array) $params['default'];
+          unset($params['default']);
+        }
 
-      $params['checked'] = is_array($default) ? in_array($params['value'], $default) : $default === $params['value'];
+        $received = static::value($params['name'], static::value($key));
+        $params['checked'] = in_array($params['value'], $received ?: $test);
+      break;
+      default;
+        $params['value'] = static::value($key, $params['value']);
+      break;
     }
+
 
     if (empty($params['id'])) {
       $params['id'] = strtr($key, '.', '_');
@@ -256,7 +268,9 @@ class Form
       }
     }
 
-    return \Labourer\Web\Html::tag('input', $params);
+    $uncheck && $uncheck = static::input('hidden', $params['name'], array('id' => "$params[id]_off"));
+
+    return $uncheck . \Labourer\Web\Html::tag('input', $params);
   }
 
   public static function select($name, array $options, array $params = array())
