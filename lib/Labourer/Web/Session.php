@@ -5,8 +5,7 @@ namespace Labourer\Web;
 class Session
 {
 
-  private static $data = NULL;
-  private static $cache = NULL;
+  private static $cache = array();
 
 
 
@@ -43,6 +42,12 @@ class Session
         unset($_SESSION[$key]);
       }
     }
+
+    // flashes
+    if (isset($_SESSION['__FLASHES'])) {
+      static::$cache = (array) $_SESSION['__FLASHES'];
+      unset($_SESSION['__FLASHES']);
+    }
   }
 
 
@@ -68,16 +73,7 @@ class Session
   public static function flash($key = -1, $value = FALSE)
   {
     if (func_num_args() <= 1) {
-      if (isset(static::$data[$key])) {
-        return static::$data[$key];
-      } elseif ( ! is_null(static::$data) && ! func_num_args()) {
-        return static::$data;
-      }
-
-      static::$data = array_filter((array) static::get('__FLASH_DATA'));
-      static::set('__FLASH_DATA', array());
-
-      return static::$data;
+      return isset(static::$cache[$key]) ? static::$cache[$key] : static::$cache;
     }
 
 
@@ -88,9 +84,7 @@ class Session
       static::$cache[$key] []= $value;
     }
 
-    static::set('__FLASH_DATA', static::$cache, array(
-      'hops' => 1,
-    ));
+    $_SESSION['__FLASHES'] = static::$cache;
   }
 
   public static function get($key)
