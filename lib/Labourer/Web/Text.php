@@ -13,7 +13,7 @@ class Text
 
   private static $plain_repl = array();
 
-
+  private static $counter = 0;
 
   public static function urlify($text)
   {
@@ -39,11 +39,9 @@ class Text
     $out    = '';
     $length = strlen($text);
 
-
     for ($i = 0; $i < $length; $i += 1) {
       $rand = mt_rand(0, 100);
       $char = substr($text, $i, 1);
-
 
       if ($ran < 45) {
         $out .= '&#x' . dechex(ord($char)) . ';';
@@ -74,21 +72,19 @@ class Text
 
   public static function alt(array $set = array())
   {
-    static $index = 0;
-
     if (func_get_args() == 0) {
-      $index = 0;
+      static::$counter = 0;
+
       return FALSE;
     }
-
 
     $num  = func_num_args();
     $args = is_array($set) ? $set : func_get_args();
 
-    $num  = $index % sizeof($args);
+    $num  = static::$counter % sizeof($args);
     $out  = isset($args[$num]) ? $args[$num] : '';
 
-    $index += 1;
+    static::$counter += 1;
 
     return $out;
   }
@@ -167,7 +163,6 @@ class Text
       $text   = $prefix . $hash . $suffix;
     }
 
-
     $text = str_replace($hash, $glue, $text);
 
     return $text;
@@ -209,16 +204,15 @@ class Text
         $good []= preg_quote($match[1]);
       }, $query);
 
-
     foreach (preg_split('/\s+/', $query) as $one) {
-      switch(substr($one, 0, 1)) {
+      switch (substr($one, 0, 1)) {
         case '-';
-          if(strlen($one) > 1) {
+          if (strlen($one) > 1) {
             $bad []= preg_quote(substr($one, 1), '/');
           }
         break;
         case '+';
-          if(strlen($one) > 1) {
+          if (strlen($one) > 1) {
             $good []= preg_quote(substr($one, 1), '/');
           }
         break;
@@ -227,7 +221,6 @@ class Text
         break;
       }
     }
-
 
     $good = array_filter($good);
 
@@ -253,6 +246,7 @@ class Text
         return $out;
       }
     }
+
     return FALSE;
   }
 
@@ -272,7 +266,7 @@ class Text
 
       $current = strlen($out);
 
-    } while($current !== $length);
+    } while ($current !== $length);
 
     return $out;
   }
@@ -315,7 +309,6 @@ class Text
         static::$plain_repl['rev'][$key] = '(?:' . join('|', $val) . ')';
       }
     }
-
 
     $text = strtr($text, static::$plain_repl['set']);
     $text = $special ? strtr($text, static::$plain_repl['rev']) : $text;

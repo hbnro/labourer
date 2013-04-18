@@ -9,13 +9,10 @@ class AS3
 
   private static $list = array();
 
-
-
   public static function __callStatic($method, $arguments)
   {
     return call_user_func_array(array('\\S3', str_replace(' ', '', ucwords(strtr($method, '_', ' ')))), $arguments);
   }
-
 
   public static function url($path, $secure = FALSE)
   {
@@ -42,11 +39,11 @@ class AS3
 
   public static function initialize()
   {
-    if ( ! static::$on) {
+    if (! static::$on) {
       $key = \Labourer\Config::get('s3_key');
       $secret = \Labourer\Config::get('s3_secret');
 
-      if ( ! $key OR ! $secret) {
+      if (! $key OR ! $secret) {
         throw new \Exception("Missing key/secret for AS3");
       }
 

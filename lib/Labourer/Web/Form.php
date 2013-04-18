@@ -5,6 +5,8 @@ namespace Labourer\Web;
 class Form
 {
 
+  private static $idx = 0;
+
   private static $self = NULL;
 
   private static $buffer = array();
@@ -37,8 +39,6 @@ class Form
             'button'
           );
 
-
-
   public static function __callStatic($method, $arguments)
   {
     $type = strtr($method, '_', '-');
@@ -55,7 +55,6 @@ class Form
           $params[$part] = array_shift($arguments) ?: TRUE;
         }
       }
-
 
       if ( ! empty($params['method'])) {
         return static::to($action, $lambda, $params);
@@ -90,7 +89,6 @@ class Form
       $params['content'] = $content;
     }
 
-
     $params = array_merge(array(
       'action'    => '',
       'method'    => 'GET',
@@ -102,13 +100,11 @@ class Form
       throw new \Exception('You must provide a closure');
     }
 
-
     if ( ! empty($params['method']) && ($params['method'] <> 'GET')) {
       if ($params['multipart']) {
         $params['enctype'] = 'multipart/form-data';
       }
     }
-
 
     $callback = $params['content'];
     $params   = static::ujs($params, TRUE);
@@ -120,12 +116,10 @@ class Form
     $params['method'] = strtolower($params['method'] ?: 'GET');
     $params['action'] = $params['action'] === '.' ? '' : $params['action'];
 
-
     if (preg_match('/^(put|get|post|patch|delete)\s+(.+?)$/i', $params['action'], $match)) {
       $params['method'] = strtolower($match[1]);
       $params['action'] = $match[2];
     }
-
 
     $tmp = array();
     $post = FALSE;
@@ -163,7 +157,6 @@ class Form
   {
     $out  = array();
     $args = func_get_args();
-
 
     foreach ($args as $one) {
       if (is_array($one) && is_string(key($one))) {
@@ -227,7 +220,6 @@ class Form
       $params['value'] = $value;
     }
 
-
     $params = array_merge(array(
       'name'    => FALSE,
       'type'    => FALSE,
@@ -256,7 +248,6 @@ class Form
       break;
     }
 
-
     if (empty($params['id'])) {
       $params['id'] = strtr($key, '.', '_');
     }
@@ -280,16 +271,13 @@ class Form
       $params['name'] = $name;
     }
 
-
     if (empty($params['name'])) {
       throw new \Exception("The input 'name' for select() is required");
     }
 
-
     if ( ! isset($params['default'])) {
       $params['default'] = key($options);
     }
-
 
     $out     = '';
     $args    = array();
@@ -301,7 +289,6 @@ class Form
     $params['type'] && $params['data']['type'] = $params['type'];
 
     unset($params['type']);
-
 
     foreach ($options as $key => $value) {
       if (is_array($value)) {
@@ -327,7 +314,6 @@ class Form
       ), \Labourer\Web\Html::ents($value, TRUE));
     }
 
-
     if ( ! empty($params['multiple']) && (substr($params['name'], -2) <> '[]')) {
       $params['name'] .= $params['multiple'] ? '[]' : '';
     }
@@ -350,11 +336,9 @@ class Form
       $params['name'] = $name;
     }
 
-
     if (empty($params['name'])) {
       throw new \Exception("The input 'name' for group() is required");
     }
-
 
     $params = array_merge(array(
       'name'      => '',
@@ -394,7 +378,6 @@ class Form
         'id' => $index . '_' . $key,
       ));
 
-
       $text = ($params['placement'] === 'before' ? $input : '')
             . \Labourer\Web\Html::ents($value, TRUE)
             . ($params['placement'] === 'after' ? $input : '');
@@ -423,11 +406,9 @@ class Form
       $args['text'] = $value;
     }
 
-
     if (empty($args['name'])) {
       throw new \Exception("The input 'name' for textarea() is required");
     }
-
 
     $args = static::ujs($args);
 
@@ -467,7 +448,6 @@ class Form
       $args['text'] = $text;
     }
 
-
     if (empty($args['text'])) {
       throw new \Exception('Form labels cannot be empty');
     }
@@ -482,7 +462,6 @@ class Form
     return \Labourer\Web\Html::tag('label', $args, $text);
   }
 
-
   private static function csrf_token()
   {
     return \Labourer\Web\Html::tag('input', array(
@@ -494,9 +473,10 @@ class Form
 
   private static function instance()
   {
-    if ( ! static::$self) {
+    if (! static::$self) {
       static::$self = new static;
     }
+
     return static::$self;
   }
 
@@ -507,8 +487,7 @@ class Form
 
   private static function index($name = '', $inc = FALSE)
   {
-    static $num = 0;
-
+    $num =& static::$idx;
 
     if ( ! empty($name)) {
       $name = preg_replace('/\[([^\[\]]+)\]/', '.\\1', $name);
@@ -533,7 +512,6 @@ class Form
       'disable_with' => FALSE,
     ), $params);
 
-
     $params['url'] && $params['data']['url'] = $params['url'];
     $params['confirm'] && $params['data']['confirm'] = $params['confirm'];
     $params['params'] && $params['data']['params'] = http_build_query($params['params']);
@@ -543,7 +521,7 @@ class Form
 
     unset($params['disable_with'], $params['confirm'], $params['remote'], $params['url']);
 
-    if ( ! $form) {
+    if (! $form) {
       $params['method'] && $params['data']['method'] = $params['method'];
       unset($params['method']);
     }

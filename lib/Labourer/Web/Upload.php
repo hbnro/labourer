@@ -5,6 +5,8 @@ namespace Labourer\Web;
 class Upload
 {
 
+  private static $s3ok = NULL;
+
   private static $handle = NULL;
 
   private static $files = array();
@@ -40,7 +42,6 @@ class Upload
                     8 => 'upload_err_extension'
                   );
 
-
   public static function setup(array $test = array())
   {
     foreach ($test as $key => $val) {
@@ -56,7 +57,6 @@ class Upload
     static::$handle = NULL;
     static::$files  = array();
     static::$error  = array();
-
 
     if (static::s3()) {
       if ( ! array_key_exists(\Labourer\Config::get('s3_bucket'), \Labourer\AS3::buckets())) {
@@ -74,7 +74,6 @@ class Upload
       return static::set_error('upload_err_multi');
     }
 
-
     foreach ($set['error'] as $i => $val) {
       if ($val > 0) {
         if ( ! \Labourer\Config::get('upload_skip_error') OR ! $skip) {
@@ -83,13 +82,11 @@ class Upload
         continue;
       }
 
-
       if ($set['size'][$i] > \Labourer\Config::get('upload_max_size')) {
         return static::set_error('upload_err_max_size');
       } elseif ($set['size'][$i] < \Labourer\Config::get('upload_min_size')) {
         return static::set_error('upload_err_min_size');
       }
-
 
       $type = FALSE;
 
@@ -100,10 +97,9 @@ class Upload
         }
       }
 
-      if ( ! $type) {
+      if (! $type) {
         return static::set_error('upload_err_type');
       }
-
 
       $ext = FALSE;
 
@@ -115,7 +111,7 @@ class Upload
         }
       }
 
-      if ( ! $ext) {
+      if (! $ext) {
         return static::set_error('upload_err_ext');
       }
 
@@ -138,9 +134,7 @@ class Upload
         return static::set_error('upload_err_exists');
       }
 
-
-      if ($test = static::move_file($tmp = $set['tmp_name'][$i], $file))
-      {
+      if ($test = static::move_file($tmp = $set['tmp_name'][$i], $file)) {
         static::$files []= array_merge(array(
           'info' => $test,
           'file' => $file,
@@ -161,6 +155,7 @@ class Upload
     if (static::$handle = array_shift(static::$files)) {
       return TRUE;
     }
+
     return FALSE;
   }
 
@@ -199,7 +194,6 @@ class Upload
   {
     return static::$handle['name'];
   }
-
 
   private static function set_error($code)
   {
@@ -243,6 +237,7 @@ class Upload
   {
     if (static::s3()) {
       $test = get_headers(\Labourer\AS3::url(strtr($path, '\\', '/')));
+
       return strpos(array_shift($test), '200') !== FALSE ? TRUE : FALSE;
     } else {
       return is_file($path);
@@ -251,19 +246,16 @@ class Upload
 
   private static function s3()
   {
-    static $loaded = NULL;
-
-
-    if ($loaded === NULL) {
-      $loaded = FALSE;
+    if (static::$s3ok === NULL) {
+      static::$s3ok = FALSE;
 
       if (\Labourer\Config::get('s3_key')) {
-        $loaded = TRUE;
+        static::$s3ok = TRUE;
         \Labourer\AS3::initialize();
       }
     }
 
-    return $loaded;
+    return static::$s3ok;
   }
 
 }

@@ -31,8 +31,6 @@ class Config
                     's3_permission' => 'public_read',
                   );
 
-
-
   public static function set($key, $value = NULL)
   {
     static::$bag[$key] = $value;

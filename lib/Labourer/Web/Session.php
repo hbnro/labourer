@@ -7,8 +7,6 @@ class Session
 
   private static $cache = array();
 
-
-
   // TODO: try another session drivers?
   public static function initialize()
   {
@@ -26,7 +24,6 @@ class Session
       session_name('__SESSION_' . preg_replace('/\W/', '-', phpversion()));
       session_start();
     }
-
 
     // expires+hops
     foreach ($_SESSION as $key => $val) {
@@ -50,7 +47,6 @@ class Session
     }
   }
 
-
   public static function is_safe()
   {
     $check = \Labourer\Config::get('csrf_check');
@@ -62,6 +58,7 @@ class Session
     if (((time() - $old_time) < \Labourer\Config::get('csrf_expire')) && ($old_token === $new_token)) {
       return TRUE;
     }
+
     return FALSE;
   }
 
@@ -75,7 +72,6 @@ class Session
     if (func_num_args() <= 1) {
       return isset(static::$cache[$key]) ? static::$cache[$key] : static::$cache;
     }
-
 
     if ( ! isset(static::$cache[$key])) {
       static::$cache[$key] = $value;
@@ -100,6 +96,7 @@ class Session
     } elseif (array_key_exists('value', $test)) {
       return $test['value'];
     }
+
     return FALSE;
   }
 

@@ -5,6 +5,8 @@ namespace Labourer\Web;
 class Html
 {
 
+  private static $ents_set = array();
+
   private static $ents_repl = array(
                     '/(&#?[0-9a-z]{2,})([\x00-\x20])*;/i' => '\\1;\\2',
                     '/&#x([0-9a-f]+);/ei' => 'chr(hexdec("\\1"));',
@@ -33,14 +35,12 @@ class Html
                     'area',
                   );
 
-
-
   public static function __callStatic($method, array $arguments)
   {
     array_unshift($arguments, $method);
+
     return call_user_func_array('static::tag', $arguments);
   }
-
 
   public static function tag($name, array $args = array(), $text = '')
   {
@@ -49,7 +49,6 @@ class Html
     if (in_array($name, static::$empty_tags)) {
       return "<$name$attrs>";
     }
-
 
     if ($text instanceof \Closure) {
       ob_start() && $text();
@@ -112,7 +111,6 @@ class Html
       $hash => '&',
     ));
 
-
     if ($escape) {
       $text = strtr($text, array(
           '<' => '&lt;',
@@ -130,17 +128,15 @@ class Html
 
   public static function unents($text)
   {
-    static $set = NULL;
+    if (static::$ents_set === NULL) {
+      static::$ents_set = get_html_translation_table(HTML_ENTITIES);
+      static::$ents_set = array_flip(static::$ents_set);
 
-    if (is_null($set)) {
-      $set = get_html_translation_table(HTML_ENTITIES);
-      $set = array_flip($set);
-
-      $set['&apos;'] = "'";
+      static::$ents_set['&apos;'] = "'";
     }
 
     $text = preg_replace(array_keys(static::$unents_repl), static::$unents_repl, $text);
-    $text = strtr($text, $set);
+    $text = strtr($text, static::$ents_set);
 
     return html_entity_decode($text);
   }
@@ -150,6 +146,7 @@ class Html
     if ($comment) {
       return "/*<![CDATA[*/\n$text\n/*]]]>*/";
     }
+
     return "<![CDATA[$text]]]>";
   }
 
@@ -168,7 +165,7 @@ class Html
   {
     $attrs['type'] = 'text/javascript';
 
-    if ( ! $inline) {
+    if (! $inline) {
       $attrs['src'] = $url;
     }
 
@@ -207,7 +204,6 @@ class Html
       $length = sizeof($test);
       $out    = array();
       $cite   = FALSE;
-
 
       for ($i = 0; $i < $length; $i += 1) {
         $next = isset($test[$i + 1]) ? $test[$i + 1]: NULL;
@@ -262,13 +258,11 @@ class Html
       $tfoot = static::tag('tfoot', array(), static::tag('tr', array(), $tfoot));
     }
 
-
     foreach ((array) $body as $cols => $rows) {
       if ( ! is_array($rows)) {
         $tbody .= static::tag('tr', array(), static::tag('td', array('colspan' => 99), $rows));
         continue;
       }
-
 
       $row = '';
 
@@ -321,6 +315,7 @@ class Html
 
       $out []= static::a($key, $val, $attrs);
     }
+
     return static::ul($out, $args);
   }
 
@@ -349,8 +344,6 @@ class Html
     } elseif ($ol) {
       $tag = 'ol';
     }
-
-
 
     foreach ($set as $item => $value) {
       $test = $filter ? $filter($item, $value) : array($item, $value);
@@ -382,6 +375,7 @@ class Html
       }
       $out .= static::tag($el, array(), $test[1]);
     }
+
     return static::tag($tag, $args, $out);
   }
 
@@ -391,7 +385,6 @@ class Html
       $href = http_build_query($href, NULL, '&amp;');
       $href = ! empty($href) ? "?$href" : '';
     }
-
 
     $attrs = array();
 
