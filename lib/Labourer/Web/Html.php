@@ -9,15 +9,11 @@ class Html
 
   private static $ents_repl = array(
                     '/(&#?[0-9a-z]{2,})([\x00-\x20])*;/i' => '\\1;\\2',
-                    '/&#x([0-9a-f]+);/ei' => 'chr(hexdec("\\1"));',
                     '/(&#x?)([0-9A-F]+);/i' => '\\1\\2;',
-                    '/&#(\d+);/e' => 'chr("\\1");',
                   );
 
   private static $unents_repl = array(
                     '/&amp;([a-z]+|(#\d+)|(#x[\da-f]+));/i' => '&\\1;',
-                    '/&#x([0-9a-f]+);/ei' => 'chr(hexdec("\\1"));',
-                    '/&#([0-9]+);/e' => 'chr("\\1");',
                   );
 
   private static $empty_tags = array(
@@ -37,7 +33,18 @@ class Html
 
   public static function __callStatic($method, array $arguments)
   {
+    static $extra = FALSE;
+
     array_unshift($arguments, $method);
+
+    if (! $extra) {
+      static::$unents_repl['/&#([0-9]+);/'] = function ($match) { return chr($match[1]); };
+      static::$unents_repl['/&#x([0-9a-f]+);/i'] = function ($match) { return chr(hexdec($match[1])); };
+      static::$ents_repl['/&#x([0-9a-f]+);/i'] = function ($match) { return chr(hexdec($match[1])); };
+      static::$ents_repl['/&#(\d+);/'] = function ($match) { return chr($match[1]); };
+
+      $extra = TRUE;
+    }
 
     return call_user_func_array('static::tag', $arguments);
   }
